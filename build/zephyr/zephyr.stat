@@ -1,0 +1,69 @@
+ELF Header:
+  Magic:   7f 45 4c 46 01 01 01 00 00 00 00 00 00 00 00 00 
+  Class:                             ELF32
+  Data:                              2's complement, little endian
+  Version:                           1 (current)
+  OS/ABI:                            UNIX - System V
+  ABI Version:                       0
+  Type:                              EXEC (Executable file)
+  Machine:                           ARM
+  Version:                           0x1
+  Entry point address:               0xb9d
+  Start of program headers:          52 (bytes into file)
+  Start of section headers:          534272 (bytes into file)
+  Flags:                             0x5000200, Version5 EABI, soft-float ABI
+  Size of this header:               52 (bytes)
+  Size of program headers:           32 (bytes)
+  Number of program headers:         4
+  Size of section headers:           40 (bytes)
+  Number of section headers:         27
+  Section header string table index: 26
+
+Section Headers:
+  [Nr] Name              Type            Addr     Off    Size   ES Flg Lk Inf Al
+  [ 0]                   NULL            00000000 000000 000000 00      0   0  0
+  [ 1] text              PROGBITS        00000000 0000c0 0000dc 00 WAX  0   0  4
+  [ 2] _TEXT_SECTION_NAM PROGBITS        000000dc 00019c 003aaa 00  AX  0   0  4
+  [ 3] .ARM.exidx        ARM_EXIDX       00003b88 003c48 000008 00  AL  2   0  4
+  [ 4] sw_isr_table      PROGBITS        00003b90 003c50 000138 00  WA  0   0  4
+  [ 5] devconfig         PROGBITS        00003cc8 003d88 00006c 00  WA  0   0  4
+  [ 6] rodata            PROGBITS        00003d40 003e00 00014c 00   A  0   0 16
+  [ 7] .ramfunc          PROGBITS        20000000 0040c4 000000 00   W  0   0  1
+  [ 8] bss               NOBITS          20000000 0040c8 00422b 00  WA  0   0  8
+  [ 9] noinit            NOBITS          20004230 0040c8 000d40 00  WA  0   0  8
+  [10] datas             PROGBITS        20004f70 003f4c 0000dc 00  WA  0   0  4
+  [11] initlevel         PROGBITS        2000504c 004028 00006c 00  WA  0   0  4
+  [12] _k_mem_pool_area  PROGBITS        200050b8 004094 00001c 00  WA  0   0  4
+  [13] _k_mutex_area     PROGBITS        200050d4 0040b0 000014 00  WA  0   0  4
+  [14] .comment          PROGBITS        00000000 0040c4 000079 01  MS  0   0  1
+  [15] .debug_aranges    PROGBITS        00000000 004140 000d28 00      0   0  8
+  [16] .debug_info       PROGBITS        00000000 004e68 0367fb 00      0   0  1
+  [17] .debug_abbrev     PROGBITS        00000000 03b663 00960c 00      0   0  1
+  [18] .debug_line       PROGBITS        00000000 044c6f 0174de 00      0   0  1
+  [19] .debug_frame      PROGBITS        00000000 05c150 001c30 00      0   0  4
+  [20] .debug_str        PROGBITS        00000000 05dd80 0076a4 01  MS  0   0  1
+  [21] .debug_loc        PROGBITS        00000000 065424 01137c 00      0   0  1
+  [22] .debug_ranges     PROGBITS        00000000 0767a0 004380 00      0   0  8
+  [23] .ARM.attributes   ARM_ATTRIBUTES  00000000 07ab20 000031 00      0   0  1
+  [24] .symtab           SYMTAB          00000000 07ab54 0043e0 10     25 578  4
+  [25] .strtab           STRTAB          00000000 07ef34 0036a9 00      0   0  1
+  [26] .shstrtab         STRTAB          00000000 0825dd 000120 00      0   0  1
+Key to Flags:
+  W (write), A (alloc), X (execute), M (merge), S (strings), I (info),
+  L (link order), O (extra OS processing required), G (group), T (TLS),
+  C (compressed), x (unknown), o (OS specific), E (exclude),
+  y (purecode), p (processor specific)
+
+Program Headers:
+  Type           Offset   VirtAddr   PhysAddr   FileSiz MemSiz  Flg Align
+  EXIDX          0x003c48 0x00003b88 0x00003b88 0x00008 0x00008 R   0x4
+  LOAD           0x0000c0 0x00000000 0x00000000 0x03e8c 0x03e8c RWE 0x10
+  LOAD           0x003f4c 0x20004f70 0x00003e8c 0x00178 0x00178 RW  0x4
+  LOAD           0x0040c8 0x20000000 0x20000000 0x00000 0x04f70 RW  0x8
+
+ Section to Segment mapping:
+  Segment Sections...
+   00     .ARM.exidx 
+   01     text _TEXT_SECTION_NAME_2 .ARM.exidx sw_isr_table devconfig rodata 
+   02     datas initlevel _k_mem_pool_area _k_mutex_area 
+   03     bss noinit 

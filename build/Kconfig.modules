@@ -1,0 +1,8 @@
+osource "/Users/piotrek/Desktop/PineTime_repo/pinetime/Kconfig.pinetime"
+
+osource "/Users/piotrek/Desktop/PineTime_repo/nrf/Kconfig.nrf"
+
+osource "/Users/piotrek/Desktop/PineTime_repo/bootloader/mcuboot/zephyr/Kconfig"
+
+osource "/Users/piotrek/Desktop/PineTime_repo/nrfxlib/Kconfig.nrfxlib"
+
