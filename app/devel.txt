@@ -1,0 +1,4 @@
+source zephyr/zephyr-env.sh
+
+west build -p -b pinetime app
+west flash -r pyocd

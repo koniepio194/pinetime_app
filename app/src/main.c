@@ -3,74 +3,54 @@
 #include <lvgl.h>
 #include <zephyr.h>
 #include <drivers/gpio.h>
+#include "display.h"
+#include "date_time.h"
 
-#define LED_PORT        DT_ALIAS_LED1_GPIOS_CONTROLLER
-#define LED             DT_ALIAS_LED1_GPIOS_PIN
+#define STACK_SIZE_LVGL 1024
+#define LVGL_PRIORITY 5
 
-static void backlight_init(void)
+K_THREAD_STACK_DEFINE(lvgl_stack, STACK_SIZE_LVGL);
+struct k_thread thread_lvgl_data;
+
+#define STACK_SIZE_MAIN_SCREEN_TIME 1024
+#define MAIN_SCREEN_TIME_PRIORITY 5
+
+K_THREAD_STACK_DEFINE(main_screen_time_stack, STACK_SIZE_MAIN_SCREEN_TIME);
+struct k_thread thread_main_screen_time;
+
+#define STACK_SIZE_MAIN_SCREEN_DATE 1024
+#define MAIN_SCREEN_DATE_PRIORITY 5
+
+K_THREAD_STACK_DEFINE(main_screen_date_stack, STACK_SIZE_MAIN_SCREEN_DATE);
+struct k_thread thread_main_screen_date;
+
+extern date_time_module curr_date_time;
+
+void main(void)
 {
-    struct device *dev;
+    int rc = 0;
 
-    dev = device_get_binding(LED_PORT);
+    rc = display_dev_init(&disp_dev);
+    __ASSERT_NO_MSG(rc == 0);
 
-    gpio_pin_configure(dev, LED, GPIO_DIR_OUT);
-    gpio_pin_write(dev, LED, 0);
-}
+    rc = display_backlight_init(&backlight_dev);
+    __ASSERT_NO_MSG(rc == 0);
 
-int main(void)
-{
-    struct device *display_dev;
+    date_time_init(&curr_date_time);
+    rtc_counter_dev_init(&curr_date_time);
 
-    display_dev = device_get_binding(CONFIG_LVGL_DISPLAY_DEV_NAME);
-    if (display_dev == NULL)
-        return -1;
-    else
-        backlight_init();
+    /* Timer for LVGL tick - required for the internal timing of LittlevGL */
+    k_timer_init(&lvgl_tick_timer, lvgl_tick_timer_expiry, NULL);
+    /* Call lv_tick_inc() every 10ms */
+    k_timer_start(&lvgl_tick_timer, K_MSEC(LV_TICK_INC_PERIOD_MS), K_MSEC(LV_TICK_INC_PERIOD_MS));
 
-    static lv_style_t main_screen_st;
-    lv_style_copy(&main_screen_st, &lv_style_plain);
-    main_screen_st.body.main_color = LV_COLOR_BLACK;
-    main_screen_st.body.grad_color = LV_COLOR_BLACK;
+    lvgl_screens_create(&curr_date_time);
+    display_blanking_off(disp_dev);
 
-    lv_obj_set_style(lv_scr_act(), &main_screen_st);
-
-    lv_obj_t *time_label = lv_label_create(lv_scr_act(), NULL);
-    lv_label_set_align(time_label, LV_LABEL_ALIGN_CENTER);
-    int hours = 12;
-    int minutes = 30;
-    lv_label_set_text_fmt(time_label, "%d : %d", hours, minutes);
-
-    static lv_style_t time_label_style;
-    lv_style_copy(&time_label_style, &lv_style_plain);
-    time_label_style.text.color = LV_COLOR_MAGENTA;
-    time_label_style.text.font = &lv_font_roboto_28;
-
-    lv_obj_set_style(time_label, &time_label_style);
-
-    lv_obj_set_size(time_label, 80, 70);
-    lv_obj_align(time_label, NULL, LV_ALIGN_CENTER, 0, -20);
-
-    lv_obj_t *date_label = lv_label_create(lv_scr_act(), NULL);
-    lv_label_set_align(date_label, LV_LABEL_ALIGN_CENTER);
-    lv_label_set_text(date_label, " Mon 12 2020");
-
-    static lv_style_t date_label_style;
-    lv_style_copy(&date_label_style, &lv_style_plain);
-    date_label_style.text.color = LV_COLOR_GREEN;
-    date_label_style.text.font = &lv_font_roboto_28;
-
-    lv_obj_set_style(date_label, &date_label_style);
-
-    lv_obj_set_size(date_label, 80, 70);
-    lv_obj_align(date_label, time_label, LV_ALIGN_OUT_BOTTOM_MID, 0 , 0);
-
-    display_blanking_off(display_dev);
-
-    while (1) {
-        lv_task_handler();
-        k_sleep(K_MSEC(10));
-    }
-
-    return 0;
-
+    k_thread_create(&thread_lvgl_data, lvgl_stack, K_THREAD_STACK_SIZEOF(lvgl_stack),
+            lvgl_task_handler_run, NULL, NULL, NULL, LVGL_PRIORITY, 0, K_NO_WAIT);
+    k_thread_create(&thread_main_screen_time, main_screen_time_stack, K_THREAD_STACK_SIZEOF(main_screen_time_stack),
+            main_screen_time, NULL, NULL, NULL, MAIN_SCREEN_TIME_PRIORITY, 0, K_NO_WAIT);
+    k_thread_create(&thread_main_screen_date, main_screen_date_stack, K_THREAD_STACK_SIZEOF(main_screen_date_stack),
+            main_screen_date, NULL, NULL, NULL, MAIN_SCREEN_DATE_PRIORITY, 0, K_NO_WAIT);
 }
